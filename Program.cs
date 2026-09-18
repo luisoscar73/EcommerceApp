@@ -31,6 +31,14 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -45,13 +53,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Products}/{action=Index}/{id?}"
-);
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {
@@ -67,6 +76,7 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(
                 new IdentityRole(role)
             );
+            
         }
     }
 }

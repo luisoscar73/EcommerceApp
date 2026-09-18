@@ -1,8 +1,210 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<EcommerceApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Inicio";
+
+    var heroProduct = Model?
+        .FirstOrDefault(p =>
+            !string.IsNullOrWhiteSpace(p.ImageUrl));
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="matter-hero">
+    <div class="matter-hero-content">
+        <span class="matter-eyebrow">
+            CAFÉ · INVENTARIO · VENTAS
+        </span>
+
+        <h1>
+            CAFÉ<br />
+            SIN<br />
+            REGLAS
+        </h1>
+
+        <p>
+            Una experiencia diferente para descubrir,
+            pedir y disfrutar nuestros productos.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="matter-button matter-button-acid">
+                EXPLORAR MENÚ →
+            </a>
+
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <a asp-controller="Account"
+                   asp-action="Register"
+                   class="matter-button matter-button-outline">
+                    CREAR CUENTA
+                </a>
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Sales"
+                   asp-action="Index"
+                   class="matter-button matter-button-outline">
+                    VER VENTAS
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Cart"
+                   asp-action="Index"
+                   class="matter-button matter-button-outline">
+                    VER CARRITO
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="matter-hero-visual">
+        @if (heroProduct != null)
+        {
+            <img src="@heroProduct.ImageUrl"
+                 alt="@heroProduct.Name" />
+        }
+        else
+        {
+            <div class="matter-coffee-symbol">☕</div>
+        }
+
+        <span class="matter-sticker">
+            HECHO EN<br />
+            COCHABAMBA
+        </span>
+    </div>
+</section>
+
+<section class="matter-manifesto">
+    <div>
+        <span>01</span>
+
+        <h2>NUESTRO MANIFIESTO</h2>
+    </div>
+
+    <p>
+        Creemos en un café auténtico, productos frescos
+        y una experiencia directa. Tecnología e inventario
+        trabajando juntos para servir mejor.
+    </p>
+</section>
+
+<section class="matter-categories">
+    <a asp-controller="Products"
+       asp-action="Index"
+       asp-route-category="Bebida"
+       class="matter-category matter-category-acid">
+
+        <span>01</span>
+        <div class="matter-category-icon">🥤</div>
+        <h2>BEBIDAS</h2>
+        <p>Café, chocolate y bebidas preparadas.</p>
+    </a>
+
+    <a asp-controller="Products"
+       asp-action="Index"
+       asp-route-category="Postre"
+       class="matter-category matter-category-orange">
+
+        <span>02</span>
+        <div class="matter-category-icon">🍰</div>
+        <h2>POSTRES</h2>
+        <p>Opciones dulces para cualquier momento.</p>
+    </a>
+
+    <a asp-controller="Products"
+       asp-action="Index"
+       asp-route-category="Snack"
+       class="matter-category matter-category-violet">
+
+        <span>03</span>
+        <div class="matter-category-icon">🥪</div>
+        <h2>SNACKS</h2>
+        <p>Productos rápidos, calientes y deliciosos.</p>
+    </a>
+</section>
+
+@if (Model != null && Model.Count > 0)
+{
+    <section class="matter-products">
+        <div class="matter-section-title">
+            <div>
+                <span>SELECCIÓN DE LA CASA</span>
+                <h2>PRODUCTOS DESTACADOS</h2>
+            </div>
+
+            <a asp-controller="Products"
+               asp-action="Index">
+                VER TODO →
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4">
+                    <article class="matter-product-card">
+                        <div class="matter-product-image">
+                            @if (!string.IsNullOrWhiteSpace(
+                                product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl"
+                                     alt="@product.Name" />
+                            }
+                            else
+                            {
+                                <span>☕</span>
+                            }
+
+                            <small>@product.Category</small>
+                        </div>
+
+                        <div class="matter-product-info">
+                            <h3>@product.Name</h3>
+
+                            <p>@product.Description</p>
+
+                            <div>
+                                <strong>
+                                    Bs @product.Price.ToString("0.00")
+                                </strong>
+
+                                <a asp-controller="Products"
+                                   asp-action="Details"
+                                   asp-route-id="@product.Id">
+                                    VER →
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="matter-system">
+    <h2>CONTROL TOTAL.</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <span>01</span>
+            <h3>INVENTARIO</h3>
+            <p>Stock actualizado después de cada venta.</p>
+        </div>
+
+        <div class="col-md-4">
+            <span>02</span>
+            <h3>PEDIDOS</h3>
+            <p>Carrito y compras para cada cliente.</p>
+        </div>
+
+        <div class="col-md-4">
+            <span>03</span>
+            <h3>REPORTES</h3>
+            <p>Ventas y productos con stock bajo.</p>
+        </div>
+    </div>
+</section>

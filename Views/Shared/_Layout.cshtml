@@ -1,50 +1,221 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EcommerceApp</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/EcommerceApp.styles.css" asp-append-version="true" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Cafetería UPDS</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/EcommerceApp.styles.css"
+          asp-append-version="true" />
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EcommerceApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <header class="matter-header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid px-lg-5">
+                <a class="matter-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="matter-logo">☕</span>
+
+                    <span>
+                        CAFETERÍA
+                        <small>UPDS · COCHABAMBA</small>
+                    </span>
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
+
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div id="mainNavbar"
+                     class="collapse navbar-collapse">
+
+                    <ul class="navbar-nav mx-auto matter-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Inicio
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link"
+                               asp-controller="Products"
+                               asp-action="Index">
+                                Menú
+                            </a>
                         </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Products"
+                                   asp-action="Create">
+                                    Nuevo producto
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Products"
+                                   asp-action="LowStock">
+                                    Stock bajo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Sales"
+                                   asp-action="Index">
+                                    Ventas
+                                </a>
+                            </li>
+                        }
+                        else if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Cart"
+                                   asp-action="Index">
+                                    Carrito
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Sales"
+                                   asp-action="MyPurchases">
+                                    Mis compras
+                                </a>
+                            </li>
+                        }
                     </ul>
+
+                    <div class="matter-account">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="matter-user">
+                                <span>@User.Identity.Name</span>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <strong>ADMIN</strong>
+                                }
+                                else
+                                {
+                                    <strong>CLIENTE</strong>
+                                }
+                            </div>
+
+                            <form asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="matter-link-button">
+                                    Salir →
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account"
+                               asp-action="Login"
+                               class="matter-login">
+                                Ingresar
+                            </a>
+
+                            <a asp-controller="Account"
+                               asp-action="Register"
+                               class="matter-register">
+                                Crear cuenta
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - EcommerceApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="matter-footer">
+        <div class="container-fluid px-lg-5">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <h3>CAFETERÍA UPDS</h3>
+
+                    <p>
+                        Sistema de inventario, ventas y pedidos
+                        para una cafetería moderna.
+                    </p>
+                </div>
+
+                <div class="col-md-3">
+                    <strong>SISTEMA</strong>
+
+                    <a asp-controller="Products"
+                       asp-action="Index">
+                        Menú
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Login">
+                        Iniciar sesión
+                    </a>
+                </div>
+
+                <div class="col-md-4 text-md-end">
+                    <div class="matter-footer-mark">☕</div>
+
+                    <small>
+                        © 2026 · Ingeniería en Sistemas
+                    </small>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,111 @@
+@model List<EcommerceApp.Models.Sale>
+
+@{
+    ViewData["Title"] = "Mis compras";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between
+                align-items-center mb-4">
+        <div>
+            <h1>🧾 Mis compras</h1>
+            <p class="text-muted">
+                Historial de pedidos realizados en la cafetería.
+            </p>
+        </div>
+
+        <a asp-controller="Products"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            Volver al menú
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center p-5">
+            <h4>Todavía no realizaste ninguna compra</h4>
+            <p>Agrega productos al carrito para realizar tu pedido.</p>
+
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="btn btn-primary">
+                Ver productos
+            </a>
+        </div>
+    }
+    else
+    {
+        @foreach (var sale in Model)
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex
+                            justify-content-between
+                            align-items-center">
+
+                    <div>
+                        <strong>Compra #@sale.Id</strong>
+
+                        <span class="text-muted ms-2">
+                           @(sale.SaleDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                        </span>
+                    </div>
+
+                    <span class="badge bg-success">
+                        @sale.Status
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var detail in sale.Details)
+                                {
+                                    <tr>
+                                        <td>
+                                            @(detail.Product?.Name
+                                                ?? "Producto eliminado")
+                                        </td>
+
+                                        <td>@detail.Quantity</td>
+
+                                        <td>
+                                            Bs @detail.UnitPrice.ToString("0.00")
+                                        </td>
+
+                                        <td>
+                                            Bs @detail.Subtotal.ToString("0.00")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between
+                                align-items-center mt-3">
+                        <a asp-action="Details"
+                           asp-route-id="@sale.Id"
+                           class="btn btn-outline-secondary">
+                            Ver detalle
+                        </a>
+
+                        <h4 class="mb-0">
+                            Total: Bs @sale.Total.ToString("0.00")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

@@ -1,24 +1,47 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using EcommerceApp.Data;
 using EcommerceApp.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace EcommerceApp.Controllers;
-
-public class HomeController : Controller
+namespace EcommerceApp.Controllers
 {
-    public IActionResult Index()
+    public class HomeController(
+        ApplicationDbContext context) : Controller
     {
-        return View();
-    }
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
+        {
+            List<Product> featuredProducts =
+                await context.Products
+                    .AsNoTracking()
+                    .Where(p => p.IsAvailable && p.Stock > 0)
+                    .OrderBy(p => p.Name)
+                    .Take(3)
+                    .ToListAsync();
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+            return View(featuredProducts);
+        }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [AllowAnonymous]
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [ResponseCache(
+            Duration = 0,
+            Location = ResponseCacheLocation.None,
+            NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id
+                    ?? HttpContext.TraceIdentifier
+            });
+        }
     }
 }

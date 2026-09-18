@@ -6,7 +6,8 @@ namespace EcommerceApp.Controllers
 {
     public class AccountController(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager) : Controller
+        SignInManager<ApplicationUser> signInManager)
+        : Controller
     {
         [HttpGet]
         public IActionResult Login()
@@ -16,24 +17,33 @@ namespace EcommerceApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(
+            LoginViewModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
-            var result = await signInManager.PasswordSignInAsync(
-                model.Email,
-                model.Password,
-                model.RememberMe,
-                lockoutOnFailure: false
-            );
+            var result =
+                await signInManager.PasswordSignInAsync(
+                    model.Email,
+                    model.Password,
+                    model.RememberMe,
+                    lockoutOnFailure: false
+                );
 
             if (result.Succeeded)
-                return RedirectToAction("Index", "Products");
+            {
+                return RedirectToAction(
+                    "Index",
+                    "Home"
+                );
+            }
 
             ModelState.AddModelError(
                 string.Empty,
-                "Credenciales inválidas"
+                "Correo o contraseña incorrectos."
             );
 
             return View(model);
@@ -47,10 +57,13 @@ namespace EcommerceApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(
+            RegisterViewModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
             var user = new ApplicationUser
             {
@@ -67,12 +80,20 @@ namespace EcommerceApp.Controllers
 
             if (result.Succeeded)
             {
+                await userManager.AddToRoleAsync(
+                    user,
+                    "User"
+                );
+
                 await signInManager.SignInAsync(
                     user,
                     isPersistent: false
                 );
 
-                return RedirectToAction("Index", "Products");
+                return RedirectToAction(
+                    "Index",
+                    "Home"
+                );
             }
 
             foreach (var error in result.Errors)
@@ -92,7 +113,10 @@ namespace EcommerceApp.Controllers
         {
             await signInManager.SignOutAsync();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(
+                "Index",
+                "Home"
+            );
         }
     }
 }
