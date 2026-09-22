@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#d9ff43" />
+    <title>Sin conexión - Cafetería UPDS</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: #090909;
+            color: #f3f0e8;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        main { max-width: 560px; }
+        .icon { font-size: 84px; }
+        h1 { margin: 18px 0; font-size: clamp(38px, 8vw, 68px); }
+        p { color: #aaa7a0; font-size: 18px; line-height: 1.6; }
+        button {
+            margin-top: 18px;
+            padding: 14px 22px;
+            border: 0;
+            background: #d9ff43;
+            color: #090909;
+            font-weight: 800;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="icon">☕</div>
+        <h1>ESTÁS SIN CONEXIÓN</h1>
+        <p>
+            La aplicación está instalada, pero necesitas internet para
+            consultar productos, iniciar sesión o registrar ventas.
+        </p>
+        <button type="button" onclick="location.reload()">
+            VOLVER A INTENTAR
+        </button>
+    </main>
+</body>
+</html>

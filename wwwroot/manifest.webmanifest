@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Cafetería UPDS - Inventario y Ventas",
+  "short_name": "Cafetería UPDS",
+  "description": "Sistema de inventario, pedidos y ventas para la Cafetería UPDS.",
+  "lang": "es-BO",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090909",
+  "theme_color": "#d9ff43",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

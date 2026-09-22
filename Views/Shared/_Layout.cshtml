@@ -8,6 +8,13 @@
 
     <title>@ViewData["Title"] - Cafetería UPDS</title>
 
+    <meta name="theme-color" content="#d9ff43" />
+    <meta name="description"
+          content="Sistema de inventario, pedidos y ventas de la Cafetería UPDS" />
+
+    <link rel="manifest" href="~/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="~/icons/icon-192.png" />
+
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
 
@@ -99,6 +106,15 @@
                                     Ventas
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Reports"
+                                   asp-action="Index">
+                                    Reportes
+                                </a>
+                            </li>
+
                         }
                         else if (User.Identity?.IsAuthenticated == true)
                         {
@@ -207,12 +223,49 @@
         </div>
     </footer>
 
+    <button id="installAppButton"
+            class="matter-install-button"
+            type="button"
+            hidden>
+        Instalar aplicación
+    </button>
+
+    <aside id="voiceAssistant"
+           class="voice-assistant"
+           data-is-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")"
+           data-is-admin="@(User.IsInRole("Admin") ? "true" : "false")">
+
+        <div id="voicePanel"
+             class="voice-panel"
+             role="status"
+             aria-live="polite"
+             hidden>
+            <strong>ASISTENTE DE VOZ</strong>
+            <span id="voiceStatus">
+                Pulsa el micrófono y di “menú”, “carrito”,
+                “ventas”, “reportes” o “buscar café”.
+            </span>
+        </div>
+
+        <button id="voiceButton"
+                class="voice-button"
+                type="button"
+                aria-label="Activar asistente de voz"
+                aria-expanded="false">
+            🎙
+        </button>
+    </aside>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
     </script>
 
     <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
+    <script src="~/js/voice-assistant.js"
             asp-append-version="true">
     </script>
 

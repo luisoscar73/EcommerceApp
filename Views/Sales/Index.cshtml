@@ -20,11 +20,19 @@
             </p>
         </div>
 
-        <a asp-controller="Products"
-           asp-action="Index"
-           class="btn btn-outline-primary">
-            Ver inventario
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Reports"
+               asp-action="Index"
+               class="btn btn-success">
+                Abrir reportes
+            </a>
+
+            <a asp-controller="Products"
+               asp-action="Index"
+               class="btn btn-outline-primary">
+                Ver inventario
+            </a>
+        </div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -70,7 +78,7 @@
                     <table class="table table-striped align-middle">
                         <thead class="table-dark">
                             <tr>
-                                <th>Número</th>
+                                <th>Factura</th>
                                 <th>Cliente</th>
                                 <th>Fecha</th>
                                 <th>Productos</th>
@@ -84,7 +92,10 @@
                             @foreach (var sale in Model)
                             {
                                 <tr>
-                                    <td>#@sale.Id</td>
+                                    <td>
+                                        @(sale.InvoiceNumber
+                                            ?? $"Venta #{sale.Id}")
+                                    </td>
 
                                     <td>
                                         <strong>
@@ -100,7 +111,7 @@
                                     </td>
 
                                     <td>
-                                        @(sale.SaleDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                        @(sale.SaleDate.AddHours(-4).ToString("dd/MM/yyyy HH:mm"))
                                     </td>
 
                                     <td>

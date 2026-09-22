@@ -16,6 +16,7 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
     background: var(--matter-black);
     color: var(--matter-paper);
     font-family: "Space Grotesk", sans-serif;
@@ -54,7 +55,7 @@ a {
 }
 
 .matter-header .navbar {
-    min-height: 105px;
+    min-height: 88px;
 }
 
 .matter-brand {
@@ -149,15 +150,17 @@ a {
 .matter-hero {
     display: grid;
     grid-template-columns: 48% 52%;
-    min-height: 680px;
+    min-height: calc(100svh - 88px);
+    align-items: stretch;
     border-bottom: 1px solid var(--matter-line);
 }
 
 .matter-hero-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 70px 7vw;
+    justify-content: flex-start;
+    min-height: calc(100svh - 88px);
+    padding: clamp(38px, 6vh, 68px) 7vw;
 }
 
 .matter-eyebrow {
@@ -169,21 +172,21 @@ a {
 
 .matter-hero h1 {
     margin: 0;
-    font-size: clamp(76px, 9vw, 145px);
-    line-height: 0.78;
-    letter-spacing: -7px;
+    font-size: clamp(64px, 8vw, 120px);
+    line-height: 0.82;
+    letter-spacing: -6px;
 }
 
 .matter-hero-content p {
     max-width: 550px;
-    margin: 40px 0;
+    margin: 28px 0;
     color: var(--matter-muted);
     font-size: 20px;
 }
 
 .matter-hero-visual {
     position: relative;
-    min-height: 680px;
+    min-height: calc(100svh - 88px);
     overflow: hidden;
     background:
         radial-gradient(circle, #343434, transparent 65%),
@@ -514,6 +517,97 @@ a {
     font-size: 70px;
 }
 
+/* PWA y asistente de voz */
+
+.matter-install-button {
+    position: fixed;
+    left: 22px;
+    bottom: 22px;
+    z-index: 1200;
+    padding: 13px 18px;
+    border: 2px solid var(--matter-acid);
+    background: var(--matter-black);
+    color: var(--matter-acid);
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.matter-install-button:hover {
+    background: var(--matter-acid);
+    color: var(--matter-black);
+}
+
+.voice-assistant {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 1200;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.voice-button {
+    display: grid;
+    flex: 0 0 auto;
+    width: 62px;
+    height: 62px;
+    place-items: center;
+    border: 3px solid var(--matter-black);
+    border-radius: 50%;
+    background: var(--matter-acid);
+    color: var(--matter-black);
+    font-size: 27px;
+    cursor: pointer;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.voice-button:hover {
+    transform: translateY(-2px);
+}
+
+.voice-button.is-listening {
+    background: var(--matter-orange);
+    animation: voice-pulse 1s infinite;
+}
+
+.voice-button:disabled {
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.voice-panel {
+    width: min(330px, calc(100vw - 110px));
+    padding: 15px 17px;
+    border: 1px solid var(--matter-line);
+    background: rgba(9, 9, 9, 0.97);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.voice-panel strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--matter-acid);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+}
+
+.voice-panel span {
+    color: var(--matter-paper);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+@keyframes voice-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 84, 46, 0.65);
+    }
+    50% {
+        box-shadow: 0 0 0 13px rgba(255, 84, 46, 0);
+    }
+}
+
 /* Responsive */
 
 @media (max-width: 991px) {
@@ -537,6 +631,17 @@ a {
 
     .matter-hero {
         grid-template-columns: 1fr;
+    }
+
+    .matter-hero-content {
+        min-height: calc(100svh - 80px);
+        text-align: center;
+        align-items: center;
+    }
+
+    .matter-hero-content p {
+        margin-right: auto;
+        margin-left: auto;
     }
 
     .matter-hero-visual {
@@ -583,5 +688,23 @@ a {
         align-items: flex-start;
         flex-direction: column;
         gap: 20px;
+    }
+
+    .matter-install-button {
+        right: 94px;
+        bottom: 18px;
+        left: auto;
+        padding: 11px 13px;
+        font-size: 12px;
+    }
+
+    .voice-assistant {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .voice-button {
+        width: 58px;
+        height: 58px;
     }
 }

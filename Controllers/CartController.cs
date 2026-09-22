@@ -30,9 +30,70 @@ namespace EcommerceApp.Controllers
                 ?? new List<CartItem>();
         }
 
-        private void SaveCart(List<CartItem> cart)
+        private async Task SaveCartAsync(List<CartItem> cart)
         {
             HttpContext.Session.SetObject(CartKey, cart);
+
+            string? userId = _userManager.GetUserId(User);
+
+            if (userId == null)
+            {
+                return;
+            }
+
+            DateTime now = DateTime.UtcNow;
+
+            SavedCart? savedCart = await _context.SavedCarts
+                .Include(c => c.Items)
+                .Where(c => c.UserId == userId &&
+                    (c.Status == "Activo" ||
+                     c.Status == "Abandonado"))
+                .OrderByDescending(c => c.UpdatedAt)
+                .FirstOrDefaultAsync();
+
+            if (cart.Count == 0)
+            {
+                if (savedCart != null)
+                {
+                    savedCart.Status = "Vacio";
+                    savedCart.UpdatedAt = now;
+                    savedCart.AbandonedAt = null;
+                    _context.SavedCartItems.RemoveRange(savedCart.Items);
+                    await _context.SaveChangesAsync();
+                }
+
+                return;
+            }
+
+            if (savedCart == null)
+            {
+                savedCart = new SavedCart
+                {
+                    UserId = userId,
+                    Status = "Activo",
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+
+                _context.SavedCarts.Add(savedCart);
+            }
+            else
+            {
+                savedCart.Status = "Activo";
+                savedCart.UpdatedAt = now;
+                savedCart.AbandonedAt = null;
+                _context.SavedCartItems.RemoveRange(savedCart.Items);
+            }
+
+            savedCart.Items = cart.Select(item => new SavedCartItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.Name,
+                UnitPrice = item.Price,
+                Quantity = item.Quantity
+            }).ToList();
+
+            await _context.SaveChangesAsync();
         }
 
         public IActionResult Index()
@@ -85,7 +146,7 @@ namespace EcommerceApp.Controllers
                 return RedirectToAction("Index", "Products");
             }
 
-            SaveCart(cart);
+            await SaveCartAsync(cart);
 
             TempData["Success"] =
                 "Producto agregado al carrito.";
@@ -110,7 +171,7 @@ namespace EcommerceApp.Controllers
                 if (item.Quantity < product.Stock)
                 {
                     item.Quantity++;
-                    SaveCart(cart);
+                    await SaveCartAsync(cart);
                 }
                 else
                 {
@@ -124,7 +185,7 @@ namespace EcommerceApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Decrease(int productId)
+        public async Task<IActionResult> Decrease(int productId)
         {
             List<CartItem> cart = GetCart();
 
@@ -140,7 +201,7 @@ namespace EcommerceApp.Controllers
                     cart.Remove(item);
                 }
 
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
 
             return RedirectToAction(nameof(Index));
@@ -148,7 +209,7 @@ namespace EcommerceApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(int productId)
+        public async Task<IActionResult> Remove(int productId)
         {
             List<CartItem> cart = GetCart();
 
@@ -158,7 +219,7 @@ namespace EcommerceApp.Controllers
             if (item != null)
             {
                 cart.Remove(item);
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
 
             return RedirectToAction(nameof(Index));
@@ -166,7 +227,11 @@ namespace EcommerceApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Checkout()
+        public async Task<IActionResult> Checkout(
+            string billingName,
+            string taxId,
+            string paymentMethod,
+            string? paymentReference)
         {
             List<CartItem> cart = GetCart();
 
@@ -184,15 +249,48 @@ namespace EcommerceApp.Controllers
                 return Challenge();
             }
 
+            billingName = billingName?.Trim() ?? string.Empty;
+            taxId = taxId?.Trim() ?? string.Empty;
+            paymentMethod = paymentMethod?.Trim() ?? string.Empty;
+            paymentReference = paymentReference?.Trim();
+
+            string[] allowedMethods = { "Efectivo", "QR", "Tarjeta" };
+
+            if (billingName.Length < 3 || taxId.Length < 3)
+            {
+                TempData["Error"] =
+                    "Ingresa el nombre de facturación y el NIT o CI.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!allowedMethods.Contains(paymentMethod))
+            {
+                TempData["Error"] = "Selecciona un método de pago válido.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (paymentMethod != "Efectivo" &&
+                string.IsNullOrWhiteSpace(paymentReference))
+            {
+                TempData["Error"] =
+                    "Ingresa la referencia del pago QR o tarjeta.";
+                return RedirectToAction(nameof(Index));
+            }
+
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
             try
             {
+                DateTime now = DateTime.UtcNow;
+
                 Sale sale = new Sale
                 {
                     UserId = user.Id,
-                    SaleDate = DateTime.UtcNow,
+                    SaleDate = now,
+                    IssuedAt = now,
+                    BillingName = billingName,
+                    TaxId = taxId,
                     Status = "Completada",
                     Total = 0
                 };
@@ -203,29 +301,23 @@ namespace EcommerceApp.Controllers
                         .FirstOrDefaultAsync(
                             p => p.Id == item.ProductId);
 
-                    if (product == null ||
-                        !product.IsAvailable)
+                    if (product == null || !product.IsAvailable)
                     {
                         await transaction.RollbackAsync();
-
                         TempData["Error"] =
                             $"El producto {item.Name} ya no está disponible.";
-
                         return RedirectToAction(nameof(Index));
                     }
 
                     if (product.Stock < item.Quantity)
                     {
                         await transaction.RollbackAsync();
-
                         TempData["Error"] =
                             $"No existe suficiente stock de {product.Name}.";
-
                         return RedirectToAction(nameof(Index));
                     }
 
-                    decimal subtotal =
-                        product.Price * item.Quantity;
+                    decimal subtotal = product.Price * item.Quantity;
 
                     sale.Details.Add(new SaleDetail
                     {
@@ -244,7 +336,53 @@ namespace EcommerceApp.Controllers
                     }
                 }
 
+                decimal commissionRate = paymentMethod switch
+                {
+                    "QR" => 1m,
+                    "Tarjeta" => 3m,
+                    _ => 0m
+                };
+
+                decimal commissionAmount =
+                    Math.Round(sale.Total * commissionRate / 100m, 2);
+
+                sale.Payment = new Payment
+                {
+                    Method = paymentMethod,
+                    Reference = paymentReference,
+                    GrossAmount = sale.Total,
+                    CommissionRate = commissionRate,
+                    CommissionAmount = commissionAmount,
+                    NetAmount = sale.Total - commissionAmount,
+                    ReconciliationStatus = paymentMethod == "Efectivo"
+                        ? "Conciliado"
+                        : "Pendiente",
+                    PaidAt = now,
+                    ReconciledAt = paymentMethod == "Efectivo"
+                        ? now
+                        : null
+                };
+
                 _context.Sales.Add(sale);
+                await _context.SaveChangesAsync();
+
+                sale.InvoiceNumber =
+                    $"FAC-{now.AddHours(-4):yyyyMMdd}-{sale.Id:000000}";
+
+                SavedCart? savedCart = await _context.SavedCarts
+                    .Where(c => c.UserId == user.Id &&
+                        (c.Status == "Activo" ||
+                         c.Status == "Abandonado"))
+                    .OrderByDescending(c => c.UpdatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (savedCart != null)
+                {
+                    savedCart.Status = "Convertido";
+                    savedCart.ConvertedAt = now;
+                    savedCart.UpdatedAt = now;
+                    savedCart.AbandonedAt = null;
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -252,17 +390,18 @@ namespace EcommerceApp.Controllers
                 HttpContext.Session.Remove(CartKey);
 
                 TempData["Success"] =
-                    $"Compra #{sale.Id} realizada correctamente.";
+                    $"Compra {sale.InvoiceNumber} realizada correctamente.";
 
-                return RedirectToAction("Index", "Products");
+                return RedirectToAction(
+                    "Details",
+                    "Sales",
+                    new { id = sale.Id });
             }
             catch
             {
                 await transaction.RollbackAsync();
-
                 TempData["Error"] =
                     "No fue posible completar la compra.";
-
                 return RedirectToAction(nameof(Index));
             }
         }

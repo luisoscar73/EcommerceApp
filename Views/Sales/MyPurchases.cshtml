@@ -44,10 +44,12 @@
                             align-items-center">
 
                     <div>
-                        <strong>Compra #@sale.Id</strong>
+                        <strong>
+                            @(sale.InvoiceNumber ?? $"Compra #{sale.Id}")
+                        </strong>
 
                         <span class="text-muted ms-2">
-                           @(sale.SaleDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                           @(sale.SaleDate.AddHours(-4).ToString("dd/MM/yyyy HH:mm"))
                         </span>
                     </div>
 

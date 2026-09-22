@@ -1,0 +1,392 @@
+@model EcommerceApp.Models.ReportsDashboardViewModel
+
+@{
+    ViewData["Title"] = "Reportes";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-start gap-3 mb-4">
+        <div>
+            <p class="text-uppercase fw-bold mb-1">Administración</p>
+            <h1>Reportes y conciliación</h1>
+            <p class="text-muted mb-0">
+                Ventas, productos, inventario, carritos y pagos.
+                Generado el
+                @(Model.GeneratedAt.AddHours(-4).ToString("dd/MM/yyyy HH:mm")).
+            </p>
+        </div>
+
+        <a asp-action="DownloadPdf"
+           asp-route-from="@Model.From.ToString("yyyy-MM-dd")"
+           asp-route-to="@Model.To.ToString("yyyy-MM-dd")"
+           class="btn btn-success btn-lg">
+            Descargar reporte PDF
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <form method="get"
+          class="card card-body shadow-sm mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="from" class="form-label">Desde</label>
+                <input id="from"
+                       name="from"
+                       type="date"
+                       class="form-control"
+                       value="@Model.From.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="to" class="form-label">Hasta</label>
+                <input id="to"
+                       name="to"
+                       type="date"
+                       class="form-control"
+                       value="@Model.To.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-dark w-100">
+                    Consultar periodo
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl">
+            <div class="card bg-dark text-white h-100">
+                <div class="card-body">
+                    <small>Ventas</small>
+                    <h2>@Model.Sales.Count</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <small>Ingreso bruto</small>
+                    <h2>Bs @Model.GrossIncome.ToString("0.00")</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl">
+            <div class="card bg-warning h-100">
+                <div class="card-body">
+                    <small>Comisiones</small>
+                    <h2>Bs @Model.TotalCommissions.ToString("0.00")</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <small>Ingreso neto</small>
+                    <h2>Bs @Model.NetIncome.ToString("0.00")</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl">
+            <div class="card border-danger h-100">
+                <div class="card-body">
+                    <small>Carritos abandonados</small>
+                    <h2>@Model.AbandonedCarts.Count</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="card shadow-sm mb-4" id="ventas-periodo">
+        <div class="card-header bg-dark text-white">
+            <h2 class="h4 mb-0">Ventas por periodo</h2>
+        </div>
+
+        <div class="card-body table-responsive">
+            @if (Model.Sales.Count == 0)
+            {
+                <p class="text-muted mb-0">
+                    No existen ventas en el periodo seleccionado.
+                </p>
+            }
+            else
+            {
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Fecha y hora</th>
+                            <th>Cliente</th>
+                            <th>NIT/CI</th>
+                            <th>Unidades</th>
+                            <th>Pago</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sale in Model.Sales)
+                        {
+                            <tr>
+                                <td>@(sale.InvoiceNumber ?? $"Venta #{sale.Id}")</td>
+                                <td>@sale.SaleDate.AddHours(-4).ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @(sale.BillingName
+                                        ?? sale.Customer?.FullName
+                                        ?? sale.Customer?.Email
+                                        ?? "Cliente")
+                                </td>
+                                <td>@(sale.TaxId ?? "-")</td>
+                                <td>@sale.Details.Sum(d => d.Quantity)</td>
+                                <td>@(sale.Payment?.Method ?? "-")</td>
+                                <td>Bs @sale.Total.ToString("0.00")</td>
+                                <td>
+                                    <a asp-controller="Sales"
+                                       asp-action="Details"
+                                       asp-route-id="@sale.Id"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <section class="card shadow-sm h-100" id="mas-vendidos">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">Productos más vendidos</h2>
+                </div>
+
+                <div class="card-body table-responsive">
+                    @if (Model.BestSellers.Count == 0)
+                    {
+                        <p class="text-muted mb-0">Sin ventas en el periodo.</p>
+                    }
+                    else
+                    {
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Producto</th>
+                                    <th>Unidades</th>
+                                    <th>Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.BestSellers.Count; i++)
+                                {
+                                    var item = Model.BestSellers[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@item.ProductName</td>
+                                        <td>@item.Quantity</td>
+                                        <td>Bs @item.Income.ToString("0.00")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="card shadow-sm h-100" id="stock-bajo">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">Inventario con stock más bajo</h2>
+                </div>
+
+                <div class="card-body table-responsive">
+                    @if (Model.LowStockProducts.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No hay alertas de stock.</p>
+                    }
+                    else
+                    {
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Mínimo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var product in Model.LowStockProducts)
+                                {
+                                    <tr>
+                                        <td>@product.Name</td>
+                                        <td>@product.Category</td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                @product.Stock
+                                            </span>
+                                        </td>
+                                        <td>@product.MinimumStock</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card shadow-sm mb-4" id="carritos">
+        <div class="card-header bg-dark text-white">
+            <h2 class="h4 mb-0">Carritos abandonados</h2>
+        </div>
+
+        <div class="card-body table-responsive">
+            <p class="text-muted">
+                Un carrito se considera abandonado después de 30 minutos
+                sin actividad.
+            </p>
+
+            @if (Model.AbandonedCarts.Count == 0)
+            {
+                <p class="mb-0">No hay carritos abandonados registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Carrito</th>
+                            <th>Cliente</th>
+                            <th>Correo</th>
+                            <th>Abandonado</th>
+                            <th>Unidades</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cart in Model.AbandonedCarts)
+                        {
+                            <tr>
+                                <td>#@cart.Id</td>
+                                <td>@(cart.Customer?.FullName ?? "Cliente")</td>
+                                <td>@cart.Customer?.Email</td>
+                                <td>
+                                    @(cart.AbandonedAt?.AddHours(-4)
+                                        .ToString("dd/MM/yyyy HH:mm") ?? "-")
+                                </td>
+                                <td>@cart.Items.Sum(i => i.Quantity)</td>
+                                <td>Bs @cart.Total.ToString("0.00")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+
+    <section class="card shadow-sm mb-4" id="pagos">
+        <div class="card-header bg-dark text-white">
+            <h2 class="h4 mb-0">Conciliación de pagos y comisiones</h2>
+        </div>
+
+        <div class="card-body table-responsive">
+            <p class="text-muted">
+                Comisiones académicas configuradas: efectivo 0%, QR 1%
+                y tarjeta 3%.
+            </p>
+
+            @if (Model.Payments.Count == 0)
+            {
+                <p class="mb-0">No hay pagos en el periodo.</p>
+            }
+            else
+            {
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Venta</th>
+                            <th>Fecha y hora</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th>Bruto</th>
+                            <th>Comisión</th>
+                            <th>Neto</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <tr>
+                                <td>#@payment.SaleId</td>
+                                <td>@payment.PaidAt.AddHours(-4).ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@payment.Method</td>
+                                <td>@(payment.Reference ?? "-")</td>
+                                <td>Bs @payment.GrossAmount.ToString("0.00")</td>
+                                <td>
+                                    Bs @payment.CommissionAmount.ToString("0.00")
+                                    (@(payment.CommissionRate.ToString("0.##"))%)
+                                </td>
+                                <td>Bs @payment.NetAmount.ToString("0.00")</td>
+                                <td>
+                                    @if (payment.ReconciliationStatus == "Conciliado")
+                                    {
+                                        <span class="badge bg-success">Conciliado</span>
+                                        <small class="d-block text-muted">
+                                            @(payment.ReconciledAt?.AddHours(-4)
+                                                .ToString("dd/MM/yyyy HH:mm"))
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.ReconciliationStatus != "Conciliado")
+                                    {
+                                        <form asp-action="ReconcilePayment"
+                                              method="post">
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@payment.Id" />
+                                            <input type="hidden"
+                                                   name="from"
+                                                   value="@Model.From.ToString("yyyy-MM-dd")" />
+                                            <input type="hidden"
+                                                   name="to"
+                                                   value="@Model.To.ToString("yyyy-MM-dd")" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success">
+                                                Conciliar
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+</div>

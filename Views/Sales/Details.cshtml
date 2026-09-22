@@ -6,6 +6,13 @@
 }
 
 <div class="container py-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white">
             <div class="d-flex justify-content-between
@@ -13,11 +20,15 @@
 
                 <div>
                     <h3 class="mb-1">
-                        🧾 Compra #@Model.Id
+                        🧾 @(Model.InvoiceNumber
+                            ?? $"Compra #{Model.Id}")
                     </h3>
 
                     <small>
-                       @(Model.SaleDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                       Emisión:
+                       @((Model.IssuedAt ?? Model.SaleDate)
+                           .AddHours(-4)
+                           .ToString("dd/MM/yyyy HH:mm"))
                     </small>
                 </div>
 
@@ -28,18 +39,53 @@
         </div>
 
         <div class="card-body">
-            @if (isAdmin)
-            {
-                <div class="alert alert-secondary">
-                    <strong>Cliente:</strong>
-                    @(Model.Customer?.FullName ?? "Cliente")
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="alert alert-secondary h-100 mb-0">
+                        <strong>Nombre o razón social:</strong>
+                        @(Model.BillingName
+                            ?? Model.Customer?.FullName
+                            ?? "Cliente")
 
-                    <br />
+                        <br />
 
-                    <strong>Correo:</strong>
-                    @Model.Customer?.Email
+                        <strong>NIT/CI:</strong>
+                        @(Model.TaxId ?? "No registrado")
+
+                        <br />
+
+                        <strong>Correo:</strong>
+                        @(Model.Customer?.Email ?? "No registrado")
+                    </div>
                 </div>
-            }
+
+                <div class="col-md-6">
+                    <div class="alert alert-secondary h-100 mb-0">
+                        <strong>Método de pago:</strong>
+                        @(Model.Payment?.Method ?? "No registrado")
+
+                        <br />
+
+                        <strong>Referencia:</strong>
+                        @(Model.Payment?.Reference ?? "-")
+
+                        <br />
+
+                        <strong>Conciliación:</strong>
+                        @(Model.Payment?.ReconciliationStatus
+                            ?? "No registrada")
+
+                        @if (Model.Payment?.ReconciledAt != null)
+                        {
+                            <br />
+                            <strong>Fecha y hora:</strong>
+                            @(Model.Payment.ReconciledAt.Value
+                                .AddHours(-4)
+                                .ToString("dd/MM/yyyy HH:mm"))
+                        }
+                    </div>
+                </div>
+            </div>
 
             <div class="table-responsive">
                 <table class="table table-bordered align-middle">
@@ -102,6 +148,15 @@
             </div>
 
             <div class="text-end mt-4">
+                @if (Model.Payment != null)
+                {
+                    <div class="text-muted">
+                        Comisión
+                        (@(Model.Payment.CommissionRate.ToString("0.##"))%):
+                        Bs @Model.Payment.CommissionAmount.ToString("0.00")
+                    </div>
+                }
+
                 <h3>
                     Total: Bs @Model.Total.ToString("0.00")
                 </h3>
@@ -109,6 +164,12 @@
         </div>
 
         <div class="card-footer">
+            <a asp-action="SalePdf"
+               asp-route-id="@Model.Id"
+               class="btn btn-success me-2">
+                Descargar comprobante PDF
+            </a>
+
             @if (isAdmin)
             {
                 <a asp-action="Index"

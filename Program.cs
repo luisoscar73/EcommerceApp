@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Data;
 using EcommerceApp.Models;
+using EcommerceApp.Services;
+
+QuestPDF.Settings.License =
+    QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +35,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<PdfReportService>();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>

@@ -1,5 +1,6 @@
 using EcommerceApp.Data;
 using EcommerceApp.Models;
+using EcommerceApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,16 @@ namespace EcommerceApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly PdfReportService _pdfReportService;
 
         public SalesController(
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            PdfReportService pdfReportService)
         {
             _context = context;
             _userManager = userManager;
+            _pdfReportService = pdfReportService;
         }
 
         public async Task<IActionResult> MyPurchases()
@@ -33,6 +37,7 @@ namespace EcommerceApp.Controllers
             List<Sale> sales = await _context.Sales
                 .AsNoTracking()
                 .Where(s => s.UserId == userId)
+                .Include(s => s.Payment)
                 .Include(s => s.Details)
                 .ThenInclude(d => d.Product)
                 .OrderByDescending(s => s.SaleDate)
@@ -47,6 +52,7 @@ namespace EcommerceApp.Controllers
             List<Sale> sales = await _context.Sales
                 .AsNoTracking()
                 .Include(s => s.Customer)
+                .Include(s => s.Payment)
                 .Include(s => s.Details)
                 .OrderByDescending(s => s.SaleDate)
                 .ToListAsync();
@@ -59,6 +65,7 @@ namespace EcommerceApp.Controllers
             Sale? sale = await _context.Sales
                 .AsNoTracking()
                 .Include(s => s.Customer)
+                .Include(s => s.Payment)
                 .Include(s => s.Details)
                 .ThenInclude(d => d.Product)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -79,6 +86,41 @@ namespace EcommerceApp.Controllers
             }
 
             return View(sale);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SalePdf(int id)
+        {
+            Sale? sale = await _context.Sales
+                .AsNoTracking()
+                .Include(s => s.Customer)
+                .Include(s => s.Payment)
+                .Include(s => s.Details)
+                .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (sale == null)
+            {
+                return NotFound();
+            }
+
+            string? currentUserId =
+                _userManager.GetUserId(User);
+
+            bool isAdmin = User.IsInRole("Admin");
+
+            if (!isAdmin && sale.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            byte[] pdf = _pdfReportService
+                .GenerateSaleReceipt(sale);
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"{sale.InvoiceNumber ?? $"comprobante-{sale.Id}"}.pdf");
         }
     }
 }

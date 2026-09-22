@@ -1,0 +1,46 @@
+ACTUALIZACION: FACTURA, REPORTES, PAGOS Y CARRITOS
+==================================================
+
+1. Deten la aplicacion con Ctrl+C.
+2. Extrae el ZIP dentro de:
+   C:\Users\OSCAR\Documents\universidad\desarrollo de sistemas I\Ecommerce\EcommerceApp
+3. Acepta reemplazar los archivos.
+4. Abre PowerShell en esa carpeta y ejecuta, uno por uno:
+
+   dotnet restore
+   dotnet build
+   dotnet ef database update
+   dotnet run
+
+Si Windows dice que dotnet-ef no existe, ejecuta primero:
+
+   dotnet tool install --global dotnet-ef --version 10.0.12
+
+PRUEBAS RAPIDAS
+---------------
+
+- Cliente: agrega productos, abre el carrito, completa nombre, NIT/CI y pago.
+- Al confirmar: debe aparecer la factura/comprobante y su PDF.
+- Admin: abre REPORTES en la barra superior.
+- Prueba el filtro Desde/Hasta y descarga el reporte PDF.
+- Un pago QR o Tarjeta queda Pendiente y se puede Conciliar.
+- Efectivo queda conciliado automaticamente.
+- Un carrito con productos y 30 minutos sin cambios aparece abandonado.
+- Micrófono: prueba "reportes", "carritos abandonados" o "conciliacion".
+
+SUBIR A GITHUB
+--------------
+
+   git add .
+   git commit -m "Agrega facturacion reportes pagos y carritos"
+   git push
+
+Render volvera a desplegar el proyecto. Cuando termine, abre la pagina y usa
+Ctrl+F5. La PWA usa una nueva cache (v3), por lo que los cambios deben cargarse.
+
+NOTA
+----
+
+Las comisiones del ejercicio son configurables: Efectivo 0%, QR 1% y
+Tarjeta 3%. El comprobante es academico y no reemplaza una factura fiscal
+autorizada por la administracion tributaria.
