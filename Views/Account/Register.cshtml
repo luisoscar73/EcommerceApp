@@ -1,54 +1,137 @@
 @model EcommerceApp.Models.RegisterViewModel
 
-<h2>Registro</h2>
+@{
+    ViewData["Title"] = "Crear cuenta";
+    ViewData["BodyClass"] = "auth-body";
+}
 
-<form asp-action="Register" method="post">
-    <div asp-validation-summary="ModelOnly"
-         class="text-danger">
+<section class="auth-section">
+    <div class="auth-shell auth-shell-register">
+        <aside class="auth-showcase auth-showcase-register">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="auth-mini-brand">
+                <span>☕</span>
+                CAFETERÍA UPDS
+            </a>
+
+            <div class="auth-showcase-copy">
+                <span class="auth-kicker">ÚNETE A LA EXPERIENCIA</span>
+                <h1>TU CAFÉ,<br />TU CUENTA.</h1>
+                <p>
+                    Regístrate para guardar tu carrito,
+                    comprar y revisar tus comprobantes.
+                </p>
+            </div>
+
+            <div class="auth-coffee-orbit" aria-hidden="true">
+                <span>☕</span>
+            </div>
+        </aside>
+
+        <div class="auth-form-panel">
+            <div class="auth-user-badge" aria-hidden="true">✦</div>
+
+            <div class="auth-heading">
+                <span>NUEVO CLIENTE</span>
+                <h2>Crear cuenta</h2>
+                <p>Completa tus datos para comenzar.</p>
+            </div>
+
+            <form asp-action="Register" method="post" class="auth-form">
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"
+                     role="alert">
+                </div>
+
+                <div class="row g-3 auth-grid">
+                    <div class="col-12">
+                        <div class="auth-field">
+                            <label asp-for="FullName"></label>
+                            <div class="auth-input-wrap">
+                                <span aria-hidden="true">●</span>
+                                <input asp-for="FullName"
+                                       class="form-control"
+                                       autocomplete="name"
+                                       placeholder="Tu nombre completo" />
+                            </div>
+                            <span asp-validation-for="FullName"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="auth-field">
+                            <label asp-for="Email"></label>
+                            <div class="auth-input-wrap">
+                                <span aria-hidden="true">@@</span>
+                                <input asp-for="Email"
+                                       class="form-control"
+                                       autocomplete="email"
+                                       placeholder="nombre@correo.com" />
+                            </div>
+                            <span asp-validation-for="Email"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="auth-field">
+                            <label asp-for="Password"></label>
+                            <div class="auth-input-wrap">
+                                <span aria-hidden="true">●</span>
+                                <input asp-for="Password"
+                                       class="form-control"
+                                       autocomplete="new-password"
+                                       placeholder="Mínimo 6 caracteres" />
+                            </div>
+                            <span asp-validation-for="Password"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="auth-field">
+                            <label asp-for="ConfirmPassword"></label>
+                            <div class="auth-input-wrap">
+                                <span aria-hidden="true">✓</span>
+                                <input asp-for="ConfirmPassword"
+                                       class="form-control"
+                                       autocomplete="new-password"
+                                       placeholder="Repite la contraseña" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="auth-field">
+                            <label asp-for="Address"></label>
+                            <div class="auth-input-wrap">
+                                <span aria-hidden="true">⌂</span>
+                                <input asp-for="Address"
+                                       class="form-control"
+                                       autocomplete="street-address"
+                                       placeholder="Opcional" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="auth-submit">
+                    CREAR MI CUENTA <span>→</span>
+                </button>
+
+                <p class="auth-switch">
+                    ¿Ya tienes una cuenta?
+                    <a asp-action="Login">Inicia sesión</a>
+                </p>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group mb-2">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName"
-              class="text-danger">
-        </span>
-    </div>
-
-    <div class="form-group mb-2">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email"
-              class="text-danger">
-        </span>
-    </div>
-
-    <div class="form-group mb-2">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password"
-              class="text-danger">
-        </span>
-    </div>
-
-    <div class="form-group mb-2">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword"
-               class="form-control" />
-        <span asp-validation-for="ConfirmPassword"
-              class="text-danger">
-        </span>
-    </div>
-
-    <div class="form-group mb-2">
-        <label asp-for="Address"></label>
-        <input asp-for="Address" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-        Registrarse
-    </button>
-</form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

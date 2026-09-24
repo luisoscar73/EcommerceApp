@@ -1,0 +1,56 @@
+REVISIÓN FINAL - CAFETERÍA UPDS
+================================
+
+QUÉ INCLUYE
+- Inicio más limpio y compacto.
+- Imagen principal reducida aproximadamente a la mitad.
+- Inicio de sesión y registro completamente rediseñados.
+- Botones, tarjetas, formularios y categorías más redondeados.
+- Correcciones de acceso, retorno después del login y página 403.
+- Categorías normalizadas a Bebida, Postre y Snack.
+- Facturas, reportes, pagos, carritos guardados, PWA y voz.
+- Corrección de redirecciones HTTPS en Render.
+
+1. ACTUALIZAR EL PROYECTO LOCAL
+- Detén la aplicación con Ctrl+C.
+- Abre el ZIP.
+- Copia todo dentro de:
+  C:\Users\OSCAR\Documents\universidad\desarrollo de sistemas I\Ecommerce\EcommerceApp
+- Cuando Windows pregunte, elige "Reemplazar los archivos".
+
+El ZIP no contiene appsettings.json y por eso no reemplaza tu conexión privada.
+
+2. COMPROBAR EN POWERSHELL
+cd "C:\Users\OSCAR\Documents\universidad\desarrollo de sistemas I\Ecommerce\EcommerceApp"
+dotnet restore
+dotnet build
+dotnet ef database update
+dotnet run
+
+Abre la dirección localhost que aparezca en la terminal.
+Prueba Inicio, Menú, Ingresar, Crear cuenta, carrito, ventas y reportes.
+
+3. SUBIR A GITHUB
+git add .
+git commit -m "Mejora diseño de acceso e inicio y corrige detalles finales"
+git push origin main
+
+4. ACTUALIZAR RENDER
+Render debe desplegar automáticamente después del push.
+Espera a que el nuevo deploy muestre "Live" con marca verde.
+Después abre https://cafeteri-upds.onrender.com y presiona Ctrl+F5.
+
+Si la PWA estaba instalada, ciérrala y ábrela otra vez. El caché fue actualizado
+a la versión 5 para cargar el nuevo diseño.
+
+COMPROBACIONES YA REALIZADAS
+- dotnet build Release: 0 errores y 0 advertencias.
+- dotnet publish Release: correcto.
+- JavaScript: sintaxis correcta.
+- CSS: estructura completa y balanceada.
+- No se incluyeron contraseñas ni cadenas privadas en el ZIP.
+
+ÚLTIMA PRUEBA MANUAL RECOMENDADA
+- Entrar como cliente, agregar un producto y completar una compra.
+- Descargar su comprobante PDF.
+- Entrar como administrador y revisar Ventas, Reportes y Stock bajo.

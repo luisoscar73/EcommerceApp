@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="container py-5">
+    <div class="card shadow-sm mx-auto text-center"
+         style="max-width: 680px;">
+        <div class="card-body p-5">
+            <div class="display-1 mb-3">🔒</div>
+            <h1>Acceso denegado</h1>
+            <p class="text-muted">
+                Tu cuenta no tiene permiso para abrir esta sección.
+                Las funciones de inventario, ventas y reportes son
+                exclusivas del administrador.
+            </p>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-success">
+                Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>

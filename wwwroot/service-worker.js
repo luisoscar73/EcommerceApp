@@ -1,4 +1,4 @@
-const CACHE_NAME = "cafeteria-upds-v3";
+const CACHE_NAME = "cafeteria-upds-v5";
 
 const APP_SHELL = [
     "/offline.html",

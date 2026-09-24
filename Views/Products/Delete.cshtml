@@ -1,24 +1,34 @@
 @model EcommerceApp.Models.Product
 
-<h2>¿Eliminar este producto?</h2>
+@{
+    ViewData["Title"] = "Eliminar producto";
+}
 
-<h4>@Model.Name</h4>
+<div class="container py-5">
+    <div class="card shadow-sm mx-auto"
+         style="max-width: 680px;">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="h2">Eliminar producto</h1>
 
-<p>@Model.Description</p>
+            <div class="alert alert-warning mt-4">
+                Si el producto ya tiene ventas registradas, se desactivará
+                para conservar correctamente el historial.
+            </div>
 
-<p>
-    <strong>Precio:</strong>
-    @Model.Price.ToString("C")
-</p>
+            <h2 class="h4 mt-4">@Model.Name</h2>
+            <p class="text-muted">@Model.Description</p>
+            <p><strong>Precio:</strong> Bs @Model.Price.ToString("0.00")</p>
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
 
-    <button type="submit" class="btn btn-danger">
-        Sí, eliminar
-    </button>
-
-    <a asp-action="Index" class="btn btn-secondary">
-        Cancelar
-    </a>
-</form>
+                <button type="submit" class="btn btn-danger">
+                    Confirmar eliminación
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,30 +1,95 @@
 @model EcommerceApp.Models.Product
 
-<h2>@Model.Name</h2>
+@{
+    ViewData["Title"] = Model.Name;
+    bool isAdmin = User.IsInRole("Admin");
+}
 
-<img src="@(Model.ImageUrl ??
-     "/images/default-product.jpg")"
-     alt="@Model.Name"
-     style="max-width: 300px"
-     class="mb-3" />
+<div class="container py-5">
+    <div class="card shadow-sm overflow-hidden">
+        <div class="row g-0">
+            <div class="col-lg-5">
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         alt="@Model.Name"
+                         class="w-100 h-100"
+                         style="min-height:360px; object-fit:cover;" />
+                }
+                else
+                {
+                    <div class="d-grid text-center p-5"
+                         style="min-height:360px;
+                                place-items:center;
+                                font-size:100px;">
+                        ☕
+                    </div>
+                }
+            </div>
 
-<p>@Model.Description</p>
+            <div class="col-lg-7">
+                <div class="card-body p-4 p-md-5">
+                    <span class="badge bg-secondary mb-3">
+                        @(Model.Category ?? "Sin categoría")
+                    </span>
 
-<p>
-    <strong>Precio:</strong>
-    @Model.Price.ToString("C")
-</p>
+                    <h1>@Model.Name</h1>
+                    <p class="text-muted fs-5">@Model.Description</p>
+                    <h2 class="text-success my-4">
+                        Bs @Model.Price.ToString("0.00")
+                    </h2>
 
-<p>
-    <strong>Stock:</strong>
-    @Model.Stock
-</p>
+                    @if (isAdmin)
+                    {
+                        <p>
+                            <strong>Stock:</strong> @Model.Stock ·
+                            <strong>Mínimo:</strong> @Model.MinimumStock
+                        </p>
+                    }
 
-<p>
-    <strong>Categoría:</strong>
-    @Model.Category
-</p>
+                    <p>
+                        <strong>Estado:</strong>
+                        @if (Model.IsAvailable && Model.Stock > 0)
+                        {
+                            <span class="badge bg-success">Disponible</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">No disponible</span>
+                        }
+                    </p>
 
-<a asp-action="Index" class="btn btn-secondary">
-    Volver
-</a>
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            Volver al menú
+                        </a>
+
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Edit"
+                               asp-route-id="@Model.Id"
+                               class="btn btn-warning">
+                                Editar producto
+                            </a>
+                        }
+                        else if (User.Identity?.IsAuthenticated == true &&
+                                 Model.IsAvailable && Model.Stock > 0)
+                        {
+                            <form asp-controller="Cart"
+                                  asp-action="Add"
+                                  method="post">
+                                <input type="hidden"
+                                       name="productId"
+                                       value="@Model.Id" />
+                                <button type="submit"
+                                        class="btn btn-success">
+                                    Añadir al carrito
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

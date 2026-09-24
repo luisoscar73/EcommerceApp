@@ -10,16 +10,20 @@ namespace EcommerceApp.Controllers
         : Controller
     {
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(
-            LoginViewModel model)
+            LoginViewModel model,
+            string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -35,6 +39,12 @@ namespace EcommerceApp.Controllers
 
             if (result.Succeeded)
             {
+                if (!string.IsNullOrWhiteSpace(returnUrl) &&
+                    Url.IsLocalUrl(returnUrl))
+                {
+                    return LocalRedirect(returnUrl);
+                }
+
                 return RedirectToAction(
                     "Index",
                     "Home"
@@ -117,6 +127,13 @@ namespace EcommerceApp.Controllers
                 "Index",
                 "Home"
             );
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            return View();
         }
     }
 }

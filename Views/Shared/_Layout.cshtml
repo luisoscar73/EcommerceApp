@@ -1,4 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string bodyClass = ViewData["BodyClass"] as string
+        ?? string.Empty;
+
+    bool isAccountPage = string.Equals(
+        ViewContext.RouteData.Values["controller"]?.ToString(),
+        "Account",
+        StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -37,7 +46,7 @@
           asp-append-version="true" />
 </head>
 
-<body>
+<body class="@bodyClass">
     <header class="matter-header">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid px-lg-5">
@@ -56,7 +65,10 @@
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Abrir navegación">
 
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -206,9 +218,9 @@
                         Menú
                     </a>
 
-                    <a asp-controller="Account"
-                       asp-action="Login">
-                        Iniciar sesión
+                    <a asp-controller="Home"
+                       asp-action="Privacy">
+                        Privacidad
                     </a>
                 </div>
 
@@ -223,17 +235,19 @@
         </div>
     </footer>
 
-    <button id="installAppButton"
-            class="matter-install-button"
-            type="button"
-            hidden>
-        Instalar aplicación
-    </button>
+    @if (!isAccountPage)
+    {
+        <button id="installAppButton"
+                class="matter-install-button"
+                type="button"
+                hidden>
+            Instalar aplicación
+        </button>
 
-    <aside id="voiceAssistant"
-           class="voice-assistant"
-           data-is-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")"
-           data-is-admin="@(User.IsInRole("Admin") ? "true" : "false")">
+        <aside id="voiceAssistant"
+               class="voice-assistant"
+               data-is-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")"
+               data-is-admin="@(User.IsInRole("Admin") ? "true" : "false")">
 
         <div id="voicePanel"
              class="voice-panel"
@@ -254,7 +268,8 @@
                 aria-expanded="false">
             🎙
         </button>
-    </aside>
+        </aside>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
