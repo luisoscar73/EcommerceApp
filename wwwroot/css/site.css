@@ -621,12 +621,109 @@ a {
 }
 
 .voice-panel {
-    width: min(330px, calc(100vw - 110px));
-    padding: 15px 17px;
+    width: min(390px, calc(100vw - 110px));
+    padding: 17px;
     border: 1px solid var(--matter-line);
     border-radius: var(--matter-radius-md);
     background: rgba(9, 9, 9, 0.97);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    transition: border-color 0.2s;
+}
+
+.voice-panel[data-state="listening"] {
+    border-color: var(--matter-orange);
+}
+
+.voice-panel[data-state="success"] {
+    border-color: var(--matter-acid);
+}
+
+.voice-panel[data-state="error"] {
+    border-color: #ff6b6b;
+}
+
+.voice-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.voice-close-button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--matter-line);
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    font-size: 21px;
+    line-height: 1;
+    place-items: center;
+}
+
+.voice-close-button:hover {
+    border-color: var(--matter-acid);
+    color: var(--matter-acid);
+}
+
+.voice-status {
+    display: block;
+    min-height: 42px;
+}
+
+.voice-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 13px;
+}
+
+.voice-examples[hidden] {
+    display: none;
+}
+
+.voice-examples button,
+.voice-actions button {
+    border: 1px solid var(--matter-line);
+    border-radius: 999px;
+    background: #202020;
+    color: var(--matter-paper);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.voice-examples button {
+    padding: 6px 10px;
+}
+
+.voice-examples button:hover {
+    border-color: var(--matter-acid);
+    color: var(--matter-acid);
+}
+
+.voice-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 14px;
+}
+
+.voice-actions button {
+    padding: 8px 13px;
+}
+
+.voice-actions button:last-child {
+    border-color: var(--matter-acid);
+    background: var(--matter-acid);
+    color: black;
+}
+
+.voice-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 /* Acceso y registro */

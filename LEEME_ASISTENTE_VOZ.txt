@@ -1,0 +1,58 @@
+CORRECCIÓN DEL ASISTENTE DE VOZ
+================================
+
+1. Detén la aplicación con Ctrl+C.
+2. Extrae este ZIP dentro de la carpeta EcommerceApp.
+3. Selecciona "Reemplazar los archivos".
+4. Ejecuta:
+
+dotnet build
+dotnet run
+
+PRUEBA RECOMENDADA
+- Usa Google Chrome o Microsoft Edge.
+- Abre la página mediante HTTPS o localhost.
+- Pulsa el botón redondo del micrófono.
+- Si el navegador pregunta, selecciona Permitir micrófono.
+- Espera a que aparezca "Escuchando..." antes de hablar.
+
+COMANDOS GENERALES
+- inicio
+- menú
+- buscar café
+- buscar brownie
+- iniciar sesión
+- crear cuenta
+- ayuda
+
+COMANDOS DEL CLIENTE
+- carrito
+- mis compras
+- comprobantes
+- factura
+
+COMANDOS DEL ADMINISTRADOR
+- ventas
+- reportes
+- descargar reporte
+- ventas por periodo
+- productos más vendidos
+- stock bajo
+- carritos abandonados
+- pagos
+- conciliación
+- nuevo producto
+
+SI DICE QUE EL MICRÓFONO ESTÁ BLOQUEADO
+1. Pulsa el candado que aparece junto a la dirección de la página.
+2. Busca Micrófono.
+3. Selecciona Permitir.
+4. Recarga con Ctrl+F5.
+
+PARA SUBIR LA CORRECCIÓN
+git add .
+git commit -m "Corrige y mejora el asistente de voz"
+git push origin main
+
+Render se actualizará automáticamente. Cuando figure Live, abre la página
+y presiona Ctrl+F5. El caché PWA fue actualizado a la versión 6.

@@ -249,25 +249,68 @@
                data-is-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")"
                data-is-admin="@(User.IsInRole("Admin") ? "true" : "false")">
 
-        <div id="voicePanel"
-             class="voice-panel"
-             role="status"
-             aria-live="polite"
-             hidden>
-            <strong>ASISTENTE DE VOZ</strong>
-            <span id="voiceStatus">
-                Pulsa el micrófono y di “menú”, “carrito”,
-                “ventas”, “reportes” o “buscar café”.
-            </span>
-        </div>
+            <div id="voicePanel"
+                 class="voice-panel"
+                 hidden>
+                <div class="voice-panel-header">
+                    <strong>ASISTENTE DE VOZ</strong>
 
-        <button id="voiceButton"
-                class="voice-button"
-                type="button"
-                aria-label="Activar asistente de voz"
-                aria-expanded="false">
-            🎙
-        </button>
+                    <button id="voiceCloseButton"
+                            class="voice-close-button"
+                            type="button"
+                            aria-label="Cerrar asistente de voz">
+                        ×
+                    </button>
+                </div>
+
+                <span id="voiceStatus"
+                      class="voice-status"
+                      role="status"
+                      aria-live="polite">
+                    Pulsa “Escuchar” y di “menú”, “carrito”,
+                    “reportes” o “buscar café”.
+                </span>
+
+                <div id="voiceExamples"
+                     class="voice-examples"
+                     hidden>
+                    <button type="button" data-voice-command="inicio">Inicio</button>
+                    <button type="button" data-voice-command="menu">Menú</button>
+                    <button type="button" data-voice-command="buscar cafe">Buscar café</button>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <button type="button" data-voice-command="ventas">Ventas</button>
+                        <button type="button" data-voice-command="reportes">Reportes</button>
+                        <button type="button" data-voice-command="stock bajo">Stock bajo</button>
+                    }
+                    else if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <button type="button" data-voice-command="carrito">Carrito</button>
+                        <button type="button" data-voice-command="mis compras">Mis compras</button>
+                    }
+                </div>
+
+                <div class="voice-actions">
+                    <button id="voiceHelpButton"
+                            type="button">
+                        Comandos
+                    </button>
+
+                    <button id="voiceRetryButton"
+                            type="button">
+                        Escuchar
+                    </button>
+                </div>
+            </div>
+
+            <button id="voiceButton"
+                    class="voice-button"
+                    type="button"
+                    aria-label="Activar asistente de voz"
+                    aria-expanded="false">
+                <span aria-hidden="true">🎙</span>
+            </button>
         </aside>
     }
 
